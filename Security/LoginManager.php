@@ -42,11 +42,13 @@ class LoginManager implements LoginManagerInterface
         $this->container = $container;
     }
 
-    final public function loginUser($firewallName, UserInterface $user, Response $response = null)
+    final public function loginUser($firewallName, UserInterface $user, Response $response = null, $token = null)
     {
         $this->userChecker->checkPostAuth($user);
 
-        $token = $this->createToken($firewallName, $user);
+        if (null === $token) {
+            $token = $this->createToken($firewallName, $user);
+        }
 
         if ($this->container->isScopeActive('request')) {
             $this->sessionStrategy->onAuthentication($this->container->get('request'), $token);

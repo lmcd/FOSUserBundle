@@ -103,6 +103,11 @@ abstract class User implements UserInterface, GroupableInterface
     protected $expired;
 
     /**
+     * @var Boolean
+     */
+    protected $incomplete;
+
+    /**
      * @var \DateTime
      */
     protected $expiresAt;
@@ -169,6 +174,7 @@ abstract class User implements UserInterface, GroupableInterface
             $this->username,
             $this->expired,
             $this->locked,
+            $this->incomplete,
             $this->credentialsExpired,
             $this->enabled,
             $this->id,
@@ -194,6 +200,7 @@ abstract class User implements UserInterface, GroupableInterface
             $this->username,
             $this->expired,
             $this->locked,
+            $this->incomplete,
             $this->credentialsExpired,
             $this->enabled,
             $this->id
@@ -646,6 +653,26 @@ abstract class User implements UserInterface, GroupableInterface
         $this->locked = $boolean;
 
         return $this;
+    }
+
+    /**
+     * @param Boolean $boolean
+     *
+     * @return User
+     */
+    public function setIncomplete($boolean)
+    {
+        $this->incomplete = $boolean;
+
+        return $this;
+    }
+
+    /**
+     * @return Boolean
+     */
+    public function isIncomplete()
+    {
+        return $this->incomplete;
     }
 
     /**

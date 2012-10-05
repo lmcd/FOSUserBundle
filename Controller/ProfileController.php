@@ -15,6 +15,8 @@ use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use FOS\UserBundle\Model\UserInterface;
+use Symfony\Component\Security\Core\Exception\AccountStatusException;
+use FOS\UserBundle\Security\Authentication\Token\IncompleteUserToken;
 
 /**
  * Controller managing the user profile
@@ -41,7 +43,9 @@ class ProfileController extends ContainerAware
      */
     public function editAction()
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $token = $this->container->get('security.context')->getToken(); 
+        $user = $token->getUser();
+
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
         }
@@ -51,9 +55,25 @@ class ProfileController extends ContainerAware
 
         $process = $formHandler->process($user);
         if ($process) {
+            $user->setIncomplete(false);
             $this->setFlash('fos_user_success', 'profile.flash.updated');
 
-            return new RedirectResponse($this->getRedirectionUrl($user));
+            $response = new RedirectResponse($this->getRedirectionUrl($user));
+
+            if ($token instanceof IncompleteUserToken) {
+                try {
+                    $this->container->get('fos_user.security.login_manager')->loginUser(
+                        $this->container->getParameter('fos_user.firewall_name'),
+                        $user,
+                        $response);
+                } catch (AccountStatusException $ex) {
+                    // We simply do not authenticate users which do not pass the user
+                    // checker (not enabled, expired, etc.).
+                }
+            }
+            else {
+                return $response;
+            }
         }
 
         return $this->container->get('templating')->renderResponse(
