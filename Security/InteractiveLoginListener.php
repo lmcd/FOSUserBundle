@@ -35,9 +35,9 @@ class InteractiveLoginListener
     {
         $user = $event->getAuthenticationToken()->getUser();
 
-        $user->setLastLogin(new \DateTime());
-
         if ($user instanceof UserInterface) {
+            $user->setLastLogin(new \DateTime());
+            
             if ($user->getEmail() === null || $user->getUsername() === null) {
                 $user->setIncomplete(true);
 
