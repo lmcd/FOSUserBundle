@@ -71,9 +71,8 @@ class ProfileController extends ContainerAware
                     // checker (not enabled, expired, etc.).
                 }
             }
-            else {
-                return $response;
-            }
+
+            return $response;
         }
 
         return $this->container->get('templating')->renderResponse(
