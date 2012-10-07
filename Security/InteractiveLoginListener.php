@@ -24,28 +24,24 @@ class InteractiveLoginListener
     protected $userManager;
     protected $loginManager;
     protected $firewallName;
+    protected $incompleteProperties;
 
-    public function __construct(UserManagerInterface $userManager, LoginManagerInterface $loginManager, $firewallName)
+    public function __construct(UserManagerInterface $userManager, LoginManagerInterface $loginManager, $firewallName, array $incompleteProperties)
     {
         $this->userManager = $userManager;
         $this->loginManager = $loginManager;
         $this->firewallName = $firewallName;
+        $this->incompleteProperties = $incompleteProperties;
     }
 
     public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
     {
         $user = $event->getAuthenticationToken()->getUser();
 
-        // todo - these should be in configuration
-        $properties = array(
-            'email',
-            'username'
-        );
-
         if ($user instanceof UserInterface) {
             $user->setLastLogin(new \DateTime());
             
-            foreach ($properties as $property) {
+            foreach ($this->incompleteProperties as $property) {
                 $propertyPath = new PropertyPath($property);
                 $value = $propertyPath->getValue($user);
 
@@ -59,7 +55,7 @@ class InteractiveLoginListener
                 }
             }
 
-            if (null !== $value) {
+            if (!isset($value) || null !== $value) {
                 $this->userManager->updateUser($user);
             }
         }

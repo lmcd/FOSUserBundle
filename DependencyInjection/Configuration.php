@@ -39,6 +39,9 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->arrayNode('incomplete_properties')
+                    ->prototype('scalar')->end()
+                ->end()
                 ->scalarNode('db_driver')
                     ->validate()
                         ->ifNotInArray($supportedDrivers)
