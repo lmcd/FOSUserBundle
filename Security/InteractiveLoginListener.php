@@ -17,6 +17,7 @@ use FOS\UserBundle\Security\LoginManagerInterface;
 use FOS\UserBundle\Security\Authentication\Token\IncompleteUserToken;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Form\Util\PropertyPath;
 
 class InteractiveLoginListener
 {
@@ -35,16 +36,30 @@ class InteractiveLoginListener
     {
         $user = $event->getAuthenticationToken()->getUser();
 
+        // todo - these should be in configuration
+        $properties = array(
+            'email',
+            'username'
+        );
+
         if ($user instanceof UserInterface) {
             $user->setLastLogin(new \DateTime());
             
-            if ($user->getEmail() === null || $user->getUsername() === null) {
-                $user->setIncomplete(true);
+            foreach ($properties as $property) {
+                $propertyPath = new PropertyPath($property);
+                $value = $propertyPath->getValue($user);
 
-                $token = new IncompleteUserToken($this->firewallName, $user, $user->getRoles());
-                $this->loginManager->loginUser($this->firewallName, $user, null, $token);
+                if (null === $value) {
+                    $user->setIncomplete(true);
+
+                    $token = new IncompleteUserToken($this->firewallName, $user, $user->getRoles());
+                    $this->loginManager->loginUser($this->firewallName, $user, null, $token);
+
+                    break;
+                }
             }
-            else {
+
+            if (null !== $value) {
                 $this->userManager->updateUser($user);
             }
         }
