@@ -1,5 +1,5 @@
 {
-    "name": "lmcd/user-bundle",
+    "name": "friendsofsymfony/user-bundle",
     "type": "symfony-bundle",
     "description": "Symfony FOSUserBundle",
     "keywords": ["User management"],
