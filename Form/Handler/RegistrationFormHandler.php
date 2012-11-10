@@ -35,13 +35,16 @@ class RegistrationFormHandler
         $this->tokenGenerator = $tokenGenerator;
     }
 
+    /**
+     * @param boolean $confirmation
+     */
     public function process($confirmation = false)
     {
         $user = $this->createUser();
         $this->form->setData($user);
 
         if ('POST' === $this->request->getMethod()) {
-            $this->form->bindRequest($this->request);
+            $this->form->bind($this->request);
 
             if ($this->form->isValid()) {
                 $this->onSuccess($user, $confirmation);
@@ -53,6 +56,9 @@ class RegistrationFormHandler
         return false;
     }
 
+    /**
+     * @param boolean $confirmation
+     */
     protected function onSuccess(UserInterface $user, $confirmation)
     {
         if ($confirmation) {
@@ -69,6 +75,9 @@ class RegistrationFormHandler
         $this->userManager->updateUser($user);
     }
 
+    /**
+     * @return UserInterface
+     */
     protected function createUser()
     {
         return $this->userManager->createUser();
