@@ -55,7 +55,7 @@ class InteractiveLoginListener
                 }
             }
 
-            if (!isset($value) || null !== $value) {
+            if (!isset($token)) {
                 $this->userManager->updateUser($user);
             }
         }
