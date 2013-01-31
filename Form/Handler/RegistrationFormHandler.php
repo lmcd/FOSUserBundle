@@ -38,9 +38,12 @@ class RegistrationFormHandler
     /**
      * @param boolean $confirmation
      */
-    public function process($confirmation = false)
+    public function process($confirmation = false, $user = null)
     {
-        $user = $this->createUser();
+        if (null === $user) {
+            $user = $this->createUser();
+        }
+        
         $this->form->setData($user);
 
         if ('POST' === $this->request->getMethod()) {
