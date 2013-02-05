@@ -24,38 +24,23 @@ class InteractiveLoginListener
     protected $userManager;
     protected $loginManager;
     protected $firewallName;
-    protected $incompleteProperties;
 
-    public function __construct(UserManagerInterface $userManager, LoginManagerInterface $loginManager, $firewallName, array $incompleteProperties)
+    public function __construct(UserManagerInterface $userManager, LoginManagerInterface $loginManager, $firewallName)
     {
         $this->userManager = $userManager;
         $this->loginManager = $loginManager;
         $this->firewallName = $firewallName;
-        $this->incompleteProperties = $incompleteProperties;
     }
 
     public function onSecurityInteractiveLogin(InteractiveLoginEvent $event)
     {
-        $user = $event->getAuthenticationToken()->getUser();
+        $token = $event->getAuthenticationToken();
+        $user = $token->getUser();
 
         if ($user instanceof UserInterface) {
             $user->setLastLogin(new \DateTime());
-            
-            foreach ($this->incompleteProperties as $property) {
-                $propertyPath = new PropertyPath($property);
-                $value = $propertyPath->getValue($user);
 
-                if (null === $value) {
-                    $user->setIncomplete(true);
-
-                    $token = new IncompleteUserToken($this->firewallName, $user, $user->getRoles());
-                    $this->loginManager->loginUser($this->firewallName, $user, null, $token);
-
-                    break;
-                }
-            }
-
-            if (!isset($token)) {
+            if (!$token instanceof IncompleteUserToken) {
                 $this->userManager->updateUser($user);
             }
         }

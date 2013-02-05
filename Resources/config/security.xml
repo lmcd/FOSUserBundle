@@ -8,6 +8,8 @@
         <parameter key="fos_user.security.interactive_login_listener.class">FOS\UserBundle\Security\InteractiveLoginListener</parameter>
         <parameter key="fos_user.security.login_manager.class">FOS\UserBundle\Security\LoginManager</parameter>
         <parameter key="security.authentication.trust_resolver.class">FOS\UserBundle\Security\Authentication\AuthenticationTrustResolver</parameter>
+        <parameter key="security.authentication.success_handler.class">FOS\UserBundle\Security\Authentication\IncompleteAuthenticationSuccessHandler</parameter>
+        <!--<parameter key="security.authentication.manager.class">FOS\UserBundle\Security\Authentication\AuthenticationProviderManager</parameter>-->
     </parameters>
 
     <services>

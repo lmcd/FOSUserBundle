@@ -42,8 +42,6 @@ class FOSUserExtension extends Extension
         $container->setAlias('fos_user.util.token_generator', $config['service']['token_generator']);
         $container->setAlias('fos_user.user_manager', $config['service']['user_manager']);
 
-        $container->getDefinition('fos_user.security.interactive_login_listener')->addArgument($config['incomplete_properties']);
-
         if ($config['use_listener']) {
             switch ($config['db_driver']) {
                 case 'orm':

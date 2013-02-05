@@ -29,9 +29,15 @@ class ChangePasswordController extends ContainerAware
      */
     public function changePasswordAction()
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $context = $this->container->get('security.context'); 
+        $user = $context->getToken()->getUser();
+
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
+        }
+
+        if (false === $context->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            throw new AccessDeniedException();
         }
 
         $form = $this->container->get('fos_user.change_password.form');

@@ -30,9 +30,15 @@ class ProfileController extends ContainerAware
      */
     public function showAction()
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $context = $this->container->get('security.context'); 
+        $user = $context->getToken()->getUser();
+
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
+        }
+
+        if (false === $context->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            throw new AccessDeniedException();
         }
 
         return $this->container->get('templating')->renderResponse('FOSUserBundle:Profile:show.html.'.$this->container->getParameter('fos_user.template.engine'), array('user' => $user));
@@ -43,11 +49,15 @@ class ProfileController extends ContainerAware
      */
     public function editAction()
     {
-        $token = $this->container->get('security.context')->getToken(); 
-        $user = $token->getUser();
+        $context = $this->container->get('security.context'); 
+        $user = $context->getToken()->getUser();
 
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
+        }
+
+        if (false === $context->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            throw new AccessDeniedException();
         }
 
         $form = $this->container->get('fos_user.profile.form');
@@ -55,24 +65,9 @@ class ProfileController extends ContainerAware
 
         $process = $formHandler->process($user);
         if ($process) {
-            $user->setIncomplete(false);
             $this->setFlash('fos_user_success', 'profile.flash.updated');
 
-            $response = new RedirectResponse($this->getRedirectionUrl($user));
-
-            if ($token instanceof IncompleteUserToken) {
-                try {
-                    $this->container->get('fos_user.security.login_manager')->loginUser(
-                        $this->container->getParameter('fos_user.firewall_name'),
-                        $user,
-                        $response);
-                } catch (AccountStatusException $ex) {
-                    // We simply do not authenticate users which do not pass the user
-                    // checker (not enabled, expired, etc.).
-                }
-            }
-
-            return $response;
+            return new RedirectResponse($this->getRedirectionUrl($user));
         }
 
         return $this->container->get('templating')->renderResponse(
